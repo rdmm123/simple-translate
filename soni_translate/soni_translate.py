@@ -1,10 +1,8 @@
 import copy
 import hashlib
-import json
 import os
 
 import torch
-import whisperx
 
 from soni_translate.audio_segments import create_translated_audio
 from soni_translate.language_configuration import (
@@ -18,12 +16,8 @@ from soni_translate.logging_setup import (
     configure_logging_libs,
     logger,
 )
-from soni_translate.postprocessor import (
-    get_no_ext_filename,
-    get_subtitle_speaker,
-    media_out,
-    sound_separate,
-)
+from soni_translate.postprocessor import media_out
+
 from soni_translate.preprocessor import (
     audio_preprocessor,
     audio_video_preprocessor,
@@ -39,7 +33,6 @@ from soni_translate.text_multiformat_processor import (
     break_aling_segments,
     linguistic_level_segments,
     process_subtitles,
-    srt_file_to_segments,
 )
 from soni_translate.text_to_speech import (
     accelerate_segments,

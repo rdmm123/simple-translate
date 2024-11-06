@@ -1,5 +1,4 @@
 from .utils import remove_files, run_command
-from .text_multiformat_processor import get_subtitle
 from .logging_setup import logger
 import unicodedata
 import shutil
@@ -150,82 +149,3 @@ def media_out(
         return final_media + final_subtitles
     else:
         return get_output_file(file_obj, f_name, soft_subtitles)
-
-
-def get_subtitle_speaker(media_file, result, language, extension, base_name):
-
-    segments_base = copy.deepcopy(result)
-
-    # Sub segments by speaker
-    segments_by_speaker = {}
-    for segment in segments_base["segments"]:
-        if segment["speaker"] not in segments_by_speaker.keys():
-            segments_by_speaker[segment["speaker"]] = [segment]
-        else:
-            segments_by_speaker[segment["speaker"]].append(segment)
-
-    if not base_name:
-        if os.path.exists(media_file):
-            base_name = get_no_ext_filename(media_file)
-        else:
-            base_name, _ = get_video_info(media_file)
-
-    files_subs = []
-    for name_sk, segments in segments_by_speaker.items():
-
-        subtitle_speaker = get_subtitle(
-            language,
-            {"segments": segments},
-            extension,
-            filename=name_sk,
-        )
-
-        media_out_name = f"{base_name}_{language}_{name_sk}"
-
-        output = media_out(
-            media_file,  # no need
-            language,
-            media_out_name,
-            extension,
-            file_obj=subtitle_speaker,
-        )
-
-        files_subs.append(output)
-
-    return files_subs
-
-
-def sound_separate(media_file, task_uvr):
-    from .mdx_net import process_uvr_task
-
-    outputs = []
-
-    if "vocal" in task_uvr:
-        try:
-            _, _, _, _, vocal_audio = process_uvr_task(
-                orig_song_path=media_file,
-                main_vocals=False,
-                dereverb=True if "dereverb" in task_uvr else False,
-                remove_files_output_dir=True,
-            )
-            outputs.append(vocal_audio)
-        except Exception as error:
-            logger.error(str(error))
-
-    if "background" in task_uvr:
-        try:
-            background_audio, _ = process_uvr_task(
-                orig_song_path=media_file,
-                song_id="voiceless",
-                only_voiceless=True,
-                remove_files_output_dir=False if "vocal" in task_uvr else True,
-            )
-            # copy_files(background_audio, ".")
-            outputs.append(background_audio)
-        except Exception as error:
-            logger.error(str(error))
-
-    if not outputs:
-        raise Exception("Error in uvr process")
-
-    return outputs
