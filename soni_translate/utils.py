@@ -1,8 +1,6 @@
-import os, zipfile, rarfile, shutil, subprocess, shlex, sys # noqa
+import os, zipfile, shutil, subprocess, shlex, sys # noqa
 from .logging_setup import logger
 from urllib.parse import urlparse
-from IPython.utils import capture
-import re
 import soundfile as sf
 import numpy as np
 
@@ -169,71 +167,6 @@ def manual_download(url, dst):
         logger.error(f"No valid URL: {url}")
 
 
-def download_list(text_downloads):
-    try:
-        urls = [elem.strip() for elem in text_downloads.split(",")]
-    except Exception as error:
-        raise ValueError(f"No valid URL. {str(error)}")
-
-    create_directories(["downloads", "logs", "weights"])
-
-    path_download = "downloads/"
-    for url in urls:
-        manual_download(url, path_download)
-
-    # Tree
-    print("####################################")
-    print_tree_directory("downloads", indent="")
-    print("####################################")
-
-    # Place files
-    select_zip_and_rar_files("downloads/")
-
-    models, _ = upload_model_list()
-
-    # hf space models files delete
-    remove_directory_contents("downloads/repo")
-
-    return f"Downloaded = {models}"
-
-
-def select_zip_and_rar_files(directory_path="downloads/"):
-    # filter
-    zip_files = []
-    rar_files = []
-
-    for file_name in os.listdir(directory_path):
-        if file_name.endswith(".zip"):
-            zip_files.append(file_name)
-        elif file_name.endswith(".rar"):
-            rar_files.append(file_name)
-
-    # extract
-    for file_name in zip_files:
-        file_path = os.path.join(directory_path, file_name)
-        with zipfile.ZipFile(file_path, "r") as zip_ref:
-            zip_ref.extractall(directory_path)
-
-    for file_name in rar_files:
-        file_path = os.path.join(directory_path, file_name)
-        with rarfile.RarFile(file_path, "r") as rar_ref:
-            rar_ref.extractall(directory_path)
-
-    # set in path
-    def move_files_with_extension(src_dir, extension, destination_dir):
-        for root, _, files in os.walk(src_dir):
-            for file_name in files:
-                if file_name.endswith(extension):
-                    source_file = os.path.join(root, file_name)
-                    destination = os.path.join(destination_dir, file_name)
-                    shutil.move(source_file, destination)
-
-    move_files_with_extension(directory_path, ".index", "logs/")
-    move_files_with_extension(directory_path, ".pth", "weights/")
-
-    return "Download complete"
-
-
 def is_file_with_extensions(string_path, extensions):
     return any(string_path.lower().endswith(ext) for ext in extensions)
 
@@ -290,38 +223,6 @@ def get_valid_files(paths):
 
     return valid_paths
 
-
-def extract_video_links(link):
-
-    params_dlp = {"quiet": False, "no_warnings": True, "noplaylist": False}
-
-    try:
-        from yt_dlp import YoutubeDL
-        with capture.capture_output() as cap:
-            with YoutubeDL(params_dlp) as ydl:
-                info_dict = ydl.extract_info( # noqa
-                    link, download=False, process=True
-                )
-
-        urls = re.findall(r'\[youtube\] Extracting URL: (.*?)\n', cap.stdout)
-        logger.info(f"List of videos in ({link}): {str(urls)}")
-        del cap
-    except Exception as error:
-        logger.error(f"{link} >> {str(error)}")
-        urls = [link]
-
-    return urls
-
-
-def get_link_list(urls):
-    valid_links = []
-    for url_video in urls:
-        if "youtube.com" in url_video and "/watch?v=" not in url_video:
-            url_links = extract_video_links(url_video)
-            valid_links.extend(url_links)
-        else:
-            valid_links.append(url_video)
-    return valid_links
 
 # =====================================
 # Download Manager

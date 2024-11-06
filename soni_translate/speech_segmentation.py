@@ -8,7 +8,6 @@ import torch
 import gc
 import os
 import soundfile as sf
-from IPython.utils import capture # noqa
 from .language_configuration import EXTRA_ALIGN, INVERTED_LANGUAGES
 from .logging_setup import logger
 from .postprocessor import sanitize_file_name
