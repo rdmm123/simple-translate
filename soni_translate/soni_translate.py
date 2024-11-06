@@ -48,9 +48,8 @@ from soni_translate.utils import (
     run_command,
 )
 from soni_translate.voice_main import ClassVoices
-
-from inspect import currentframe
-
+from shutil import rmtree
+from pathlib import Path
 
 configure_logging_libs()  # noqa
 
@@ -82,9 +81,6 @@ def prog_disp(msg, percent, is_gui, progress=None):
 
 def warn_disp(wrn_lang, is_gui):
     logger.warning(wrn_lang)
-
-def log_with_line_no(msg: str):
-    logger.info(f"At line {currentframe().f_back.f_lineno} | {msg}")
 
 class SoniTrCache:
     def __init__(self):
@@ -702,4 +698,16 @@ class SoniTranslate(SoniTrCache):
         msg_out = output[0] if isinstance(output, list) else output
         logger.info(f"Done: {msg_out}")
 
+        self.cleanup()
         return output
+
+    # TODO: use a temporary directory
+    def cleanup(self):
+        current_dir = Path('.')
+
+        rmtree(current_dir / 'audio', ignore_errors=True)
+        rmtree(current_dir / 'audio2', ignore_errors=True)
+
+        for ext in ('mp4', 'mp3', 'ogg', 'wav', 'srt'):
+            for file in current_dir.glob(f'*.{ext}'):
+                file.unlink()

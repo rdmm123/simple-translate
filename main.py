@@ -19,8 +19,7 @@ class TranslateSettings:
     ORIGIN_LANGUAGE: str = "English (en)"
     TRANSLATE_LANGUAGE: str = "Spanish (es)"
     AUDIO_ACCELERATION: float = 1.5
-    VOICE_IMITATION: bool = False # removes openvoice dependency
-    PREVIEW: bool = True
+    PREVIEW: bool = False
 
 def init() -> None:
     for id_model in UVR_MODELS:
@@ -56,5 +55,3 @@ def main() -> None:
 
 if __name__ == '__main__':
     main()
-
-# TODO implement file cleanup after execution and folder creation if it doesnt exist

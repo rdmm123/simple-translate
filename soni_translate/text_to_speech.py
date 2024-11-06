@@ -1,3 +1,4 @@
+import os
 from gtts import gTTS
 import edge_tts, asyncio, json, glob # noqa
 from tqdm import tqdm
@@ -1044,6 +1045,7 @@ def audio_segmentation_to_voice(
     filtered_vits_onnx = filter_by_speaker(speakers_vits_onnx, all_segments)
     filtered_openai_tts = filter_by_speaker(speakers_openai_tts, all_segments)
 
+    os.makedirs('audio', exist_ok=True)
     # Infer
     if filtered_edge["segments"]:
         logger.info(f"EDGE TTS: {speakers_edge}")
