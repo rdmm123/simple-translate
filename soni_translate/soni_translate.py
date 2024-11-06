@@ -18,10 +18,7 @@ from soni_translate.logging_setup import (
 )
 from soni_translate.postprocessor import media_out
 
-from soni_translate.preprocessor import (
-    audio_preprocessor,
-    audio_video_preprocessor,
-)
+from soni_translate.preprocessor import audio_video_preprocessor
 from soni_translate.speech_segmentation import (
     COMPUTE_TYPE_CPU,
     align_speech,
@@ -45,13 +42,12 @@ from soni_translate.translate_segments import (
     translate_text,
 )
 from soni_translate.utils import (
-    copy_files,
     is_audio_file,
     is_subtitle_file,
     remove_files,
     run_command,
 )
-from voice_main import ClassVoices
+from soni_translate.voice_main import ClassVoices
 
 from inspect import currentframe
 
@@ -365,14 +361,10 @@ class SoniTranslate(SoniTrCache):
 
         self.result_diarize = self.align_language = self.result_source_lang = None
         if not self.task_in_cache("media", [media_base_hash, preview], {}):
-            if is_audio_file(media_file):
-                prog_disp("Processing audio...", 0.15, is_gui, progress=progress)
-                audio_preprocessor(preview, media_file, base_audio_wav)
-            else:
-                prog_disp("Processing video...", 0.15, is_gui, progress=progress)
-                audio_video_preprocessor(
-                    preview, media_file, base_video_file, base_audio_wav
-                )
+            prog_disp("Processing video...", 0.15, is_gui, progress=progress)
+            audio_video_preprocessor(
+                preview, media_file, base_video_file, base_audio_wav
+            )
             logger.debug("Set file complete.")
 
         if not self.task_in_cache(
