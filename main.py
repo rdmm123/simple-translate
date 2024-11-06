@@ -19,7 +19,7 @@ class TranslateSettings:
     ORIGIN_LANGUAGE: str = "English (en)"
     TRANSLATE_LANGUAGE: str = "Spanish (es)"
     AUDIO_ACCELERATION: float = 1.5
-    PREVIEW: bool = False
+    PREVIEW: bool = True
 
 def init() -> None:
     for id_model in UVR_MODELS:
@@ -40,7 +40,6 @@ def translate_video(soni: SoniTranslate, path: Path) -> str:
         volume_original_audio=0.25,
         volume_translated_audio=1.80,
         output_format_subtitle=TranslateSettings.SUBTITLE_TYPE,
-        voice_imitation=TranslateSettings.VOICE_IMITATION,
         preview=TranslateSettings.PREVIEW,
 
     )
