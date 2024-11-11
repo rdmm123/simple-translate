@@ -1,18 +1,11 @@
-import os
 from pathlib import Path
 from soni_translate.soni_translate import SoniTranslate
-from soni_translate.mdx_net import (
-    UVR_MODELS,
-    MDX_DOWNLOAD_LINK,
-    mdxnet_models_dir,
-)
-from soni_translate.utils import download_manager
 from dataclasses import dataclass
 
 @dataclass
 class TranslateSettings:
     SPEAKER_VOICE: str = "es-CL-LorenzoNeural-Male"
-    INPUT_FOLDER: Path = Path('/home/rdmm123/random')
+    INPUT_FOLDER: Path = Path('.')
     SUBTITLE_TYPE: str = "disable"
     COMPUTE_TYPE: str = "float16"
     BATCH_SIZE: int = 16
@@ -20,12 +13,6 @@ class TranslateSettings:
     TRANSLATE_LANGUAGE: str = "Spanish (es)"
     AUDIO_ACCELERATION: float = 1.5
     PREVIEW: bool = True
-
-def init() -> None:
-    for id_model in UVR_MODELS:
-        download_manager(
-            os.path.join(MDX_DOWNLOAD_LINK, id_model), mdxnet_models_dir
-        )
 
 def translate_video(soni: SoniTranslate, path: Path) -> str:
     print(f"Beginning translation {path}")
@@ -47,9 +34,8 @@ def translate_video(soni: SoniTranslate, path: Path) -> str:
     return output_path
 
 def main() -> None:
-    # init()
     soni = SoniTranslate(cpu_mode=False)
-    video_path = TranslateSettings.INPUT_FOLDER / 'test_out.mp4'
+    video_path = TranslateSettings.INPUT_FOLDER / 'input.mp4'
     translate_video(soni, video_path)
 
 if __name__ == '__main__':

@@ -7,7 +7,7 @@ WORKDIR /app
 # Copy requirements file
 COPY requirements.txt .
 
-RUN apt-get update && apt-get install git -y
+RUN apt-get update && apt-get install git ffmpeg -y
 
 # Install Python dependencies
 RUN pip install uv
