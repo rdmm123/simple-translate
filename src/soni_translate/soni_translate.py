@@ -698,16 +698,21 @@ class SoniTranslate(SoniTrCache):
         msg_out = output[0] if isinstance(output, list) else output
         logger.info(f"Done: {msg_out}")
 
-        self.cleanup()
+        self.cleanup(ignore=[media_file])
         return output
 
     # TODO: use a temporary directory
-    def cleanup(self):
+    def cleanup(self, ignore: list[str] | None = None):
         current_dir = Path('.')
 
         rmtree(current_dir / 'audio', ignore_errors=True)
         rmtree(current_dir / 'audio2', ignore_errors=True)
 
+        print(f"ignoring {ignore} for cleanup")
+        ignore_paths = [Path(i) for i in ignore]
+
         for ext in ('mp4', 'mp3', 'ogg', 'wav', 'srt'):
             for file in current_dir.glob(f'*.{ext}'):
+                if file in ignore_paths:
+                    continue
                 file.unlink()

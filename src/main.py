@@ -1,26 +1,31 @@
-import argparse
 from pathlib import Path
+from typing import Annotated
 from soni_translate.soni_translate import SoniTranslate
 from dataclasses import dataclass
 
 @dataclass
 class TranslateSettings:
-    SPEAKER_VOICE: str = "es-CL-LorenzoNeural-Male"
-    SUBTITLE_TYPE: str = "disable"
-    COMPUTE_TYPE: str = "float16"
-    BATCH_SIZE: int = 16
-    ORIGIN_LANGUAGE: str = "English (en)"
-    TRANSLATE_LANGUAGE: str = "Spanish (es)"
-    AUDIO_ACCELERATION: float = 1.5
-    PREVIEW: bool = True
+    SPEAKER_VOICE: Annotated[str, "The voice of the speaker. One of Edge TTS voices."] = "es-CL-LorenzoNeural-Male"
+    SUBTITLE_TYPE: Annotated[str, "File format for subtitles (ex: srt)."] = "disable"
+    BATCH_SIZE: Annotated[int, "Translation batch size. Increase for faster but more resource heavy execution."] = 16
+    FROM: Annotated[str, "Original language of video"] = "English (en)"
+    TO: Annotated[str, "Language to translate video to"] = "Spanish (es)"
+    AUDIO_ACCELERATION: Annotated[float, "Audio acceleration of speaker"] = 1.5
+    PREVIEW: Annotated[bool, "Generate a 10s preview of the translated video."] = False
 
-def translate_video(path: Path) -> str:
+def translate_video(path: Path, settings: TranslateSettings | None = None) -> str:
+    if not settings:
+        settings = TranslateSettings()
+
+    if not path.exists():
+        print(f"File {path} does not exist. Aborting.")
+
     soni = SoniTranslate(cpu_mode=False)
     print(f"Beginning translation {path}")
     output_path = soni.multilingual_media_conversion(
         directory_input=str(path),
-        origin_language=TranslateSettings.ORIGIN_LANGUAGE,
-        target_language=TranslateSettings.TRANSLATE_LANGUAGE,
+        origin_language=TranslateSettings.FROM,
+        target_language=TranslateSettings.TO,
         tts_voice00=TranslateSettings.SPEAKER_VOICE,
         soft_subtitles_to_video=True,
         batch_size=TranslateSettings.BATCH_SIZE,
@@ -33,15 +38,3 @@ def translate_video(path: Path) -> str:
     )
     print(f"Translated file created at {output_path}")
     return output_path
-
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        'input',
-        help='Path to the video to translate'
-    )
-    args = parser.parse_args()
-    translate_video(args.input)
-
-if __name__ == '__main__':
-    main()
