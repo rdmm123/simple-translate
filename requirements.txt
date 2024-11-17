@@ -1,8 +1,10 @@
-torch>=2.1.0
+--extra-index-url https://download.pytorch.org/whl/cu118
+torch==2.1.0+cu118
 edge_tts==6.1.7
 deep_translator==1.11.4
 pyannote.audio==3.1.1
-git+https://github.com/m-bain/whisperx.git
+#git+https://github.com/m-bain/whisperx.git
+git+https://github.com/R3gm/whisperX.git@cuda_12_x
 gTTS
 pydub==0.25.1
 srt
